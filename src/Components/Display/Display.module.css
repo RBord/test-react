@@ -1,0 +1,14 @@
+.number {
+  padding: 10px;
+  outline: 2px solid teal;
+  background-color: tomato;
+  margin-right: 5px;
+  color: white;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  padding-left: 0;
+}
