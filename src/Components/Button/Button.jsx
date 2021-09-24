@@ -13,16 +13,9 @@ export default function Button(props) {
                 <div>
                     <button className={s.button} onClick={props.stop}>Stop</button>
                     <button className={s.button} onClick={props.reset}>Reset</button>
+                    <button className={s.button} onClick={props.wait}>Wait</button>
                 </div> : ''
             }
-
-            {(props.status === 2) ?
-                <div>
-                    <button className={s.button} onClick={props.resume}>Resume</button>
-                    <button className={s.button} onClick={props.reset}>Reset</button>
-                </div> : ''
-            }
-            
         </div>
     )
 };
