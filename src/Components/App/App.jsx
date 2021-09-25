@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { exhaustMap, fromEvent, interval, Observable, takeUntil } from 'rxjs';
-import { race, first, map, repeat,buffer, filter, debounceTime, bufferCount } from 'rxjs';
+// import { wait } from '../../utils/wait';
+
+import { fromEvent, interval, Observable } from 'rxjs';
+import { map, buffer, filter, debounceTime } from 'rxjs/operators';
 
 import Container from '../Container/Container';
 import Display from '../Display/Display';
@@ -10,6 +12,7 @@ function App() {
   const [time, setTime] = useState({ s: 0, m: 0, h: 0 });
   const [intrvl, setIntrvl] = useState(0);
   const [status, setStatus] = useState(0);
+  const [isWait, setIsWait] = useState(false);
 
   function getTimeComponents(time) {
     const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -30,8 +33,8 @@ function App() {
         const deltaTime = currentTime - val;
         getTimeComponents(deltaTime);
       }, 1000));
-        setStatus(1)
-      });
+      setStatus(1)
+    });
   }
 
   function stop() {
@@ -56,42 +59,35 @@ function App() {
       start()
     })
   }
-
-  function wait() {
-    const waitStream$ = new Observable(observer => {
-      const clicks = fromEvent(document, 'click')
-      .pipe(filter((e) => e.button === 0));
-      const doubleClickDuration = 300;
-      const debounce = clicks
-        .pipe(debounceTime(doubleClickDuration));
-      const clickLimit = clicks
-        .pipe(
-          bufferCount(2),
-        );
-      const bufferGate = race(debounce, clickLimit)
-        .pipe(
-          first(),
-        );
-      clicks
-        .pipe(
-          buffer(bufferGate),
-          map(click => click.length))
-      observer.next(clicks)
-    });
-    waitStream$.subscribe((val) => {
-      if (val) {
-        clearInterval(intrvl)
-      }
-    })
+  function pause() {
+    clearInterval(intrvl);
+    setIsWait(true);
   }
-    
-  
+  function wait() {
+    const click$ = fromEvent(document, 'click');
+    const debounce$ = click$.pipe(debounceTime(300));
+    const buffered$ = click$.pipe(buffer(debounce$));
+    const toLength = a => a.length;
+    const clickCount$ = buffered$.pipe(map(toLength));
+    const doubleClick$ = clickCount$.pipe(filter(x => x === 2));
+    doubleClick$.subscribe(e => {
+      if (e) {
+        pause();
+        if (isWait) {
+          start();
+          setIsWait(false);
+        }
+        return;
+      }
+      
+    });
+  }
 
   return (
     <Container>
       <h1>Hola!</h1>
       <Display time={time}/>
-      <Button start={start} status={status} stop={stop} reset={reset} wait={wait} />
+      <Button start={start} status={status} stop={stop} reset={reset} wait={wait}/>
     </Container>
   );
 }
