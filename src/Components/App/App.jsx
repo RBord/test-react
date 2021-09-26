@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 
 import { fromEvent, interval, Observable } from 'rxjs';
 import { map, buffer, filter, debounceTime } from 'rxjs/operators';
+import { timer } from 'rxjs';
 
 import Container from '../Container/Container';
 import Display from '../Display/Display';
 import Button from '../Button/Button';
 
 function App() {
-  const [time, setTime] = useState({ s: 0, m: 0, h: 0 });
+  const [time, setTime] = useState({s: 0, m: 0, h: 0});
   const [intrvl, setIntrvl] = useState(0);
   const [status, setStatus] = useState(0);
   const [isWait, setIsWait] = useState(false);
@@ -21,12 +22,12 @@ function App() {
 
     return setTime({ s: secs, m: mins, h: hours });
   };
-  
-  function start() {
-    const startStream$ = new Observable(observer => {
-      observer.next(Date.now())
-    })
 
+  const startStream$ = new Observable(observer => {
+    observer.next(Date.now());
+  });
+
+  function start() {
     startStream$.subscribe((val) => {
       setIntrvl(setInterval(() => {
         const currentTime = Date.now();
@@ -58,11 +59,18 @@ function App() {
       getTimeComponents(0)
       start()
     })
-  }
+  };
+
   function pause() {
     clearInterval(intrvl);
     setIsWait(true);
-  }
+  };
+
+  function cont(){
+    setIsWait(false);
+    setIntrvl(setTimeout(start(), time))
+  };
+
   function wait() {
     const click$ = fromEvent(document, 'click');
     const debounce$ = click$.pipe(debounceTime(300));
@@ -71,15 +79,12 @@ function App() {
     const clickCount$ = buffered$.pipe(map(toLength));
     const doubleClick$ = clickCount$.pipe(filter(x => x === 2));
     doubleClick$.subscribe(e => {
-      if (e) {
-        pause();
-        if (isWait) {
-          start();
-          setIsWait(false);
-        }
-        return;
-      }
-      
+      isWait === false ? pause() : cont()
+      // if (e) {
+      //   pause();
+      // } else if (e && isWait === true) {
+      //   console.log('start')
+      // }
     });
   }
 
