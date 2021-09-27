@@ -13,7 +13,7 @@ export default function Button(props) {
                 <div>
                     <button className={s.button} onClick={props.stop}>Stop</button>
                     <button className={s.button} onClick={props.reset}>Reset</button>
-                    <button className={s.button} onClick={props.wait} id='wait-btn'>Wait</button>
+                    <button className={s.button} onClick={props.wait} >Wait</button>
                 </div> : ''
             }
         </div>

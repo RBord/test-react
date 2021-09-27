@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-// import { wait } from '../../utils/wait';
-
-import { fromEvent, interval, Observable } from 'rxjs';
+import s from './App.module.css';
+import { fromEvent, Observable } from 'rxjs';
 import { map, buffer, filter, debounceTime } from 'rxjs/operators';
-import { timer } from 'rxjs';
 
 import Container from '../Container/Container';
 import Display from '../Display/Display';
@@ -21,17 +19,19 @@ function App() {
     const secs = Math.floor((time % (1000 * 60)) / 1000);
 
     return setTime({ s: secs, m: mins, h: hours });
+    
   };
 
-  const startStream$ = new Observable(observer => {
-    observer.next(Date.now());
-  });
 
   function start() {
+    const startStream$ = new Observable(observer => {
+      observer.next(Date.now());
+    });
     startStream$.subscribe((val) => {
       setIntrvl(setInterval(() => {
         const currentTime = Date.now();
         const deltaTime = currentTime - val;
+        console.log(deltaTime)
         getTimeComponents(deltaTime);
       }, 1000));
       setStatus(1)
@@ -61,36 +61,42 @@ function App() {
     })
   };
 
-  function pause() {
+  function pause(intrvl) {
     clearInterval(intrvl);
     setIsWait(true);
   };
 
-  function cont(){
+  function cont() {
     setIsWait(false);
-    setIntrvl(setTimeout(start(), time))
+    const contStream$ = new Observable(observer => {
+      observer.next(time.s);
+    });
+    contStream$.subscribe((val) => {
+      console.log(val)
+      start();
+    });
   };
 
   function wait() {
-    const click$ = fromEvent(document, 'click');
-    const debounce$ = click$.pipe(debounceTime(300));
-    const buffered$ = click$.pipe(buffer(debounce$));
-    const toLength = a => a.length;
-    const clickCount$ = buffered$.pipe(map(toLength));
-    const doubleClick$ = clickCount$.pipe(filter(x => x === 2));
-    doubleClick$.subscribe(e => {
-      isWait === false ? pause() : cont()
-      // if (e) {
-      //   pause();
-      // } else if (e && isWait === true) {
-      //   console.log('start')
-      // }
+    const waitStream$ = new Observable(observer => {
+      observer.next(intrvl)
+    });
+    waitStream$.subscribe((val) => {
+      const waitStream$ = fromEvent(document, 'click');
+      const debounce$ = waitStream$.pipe(debounceTime(300));
+      const buffered$ = waitStream$.pipe(buffer(debounce$));
+      const toLength = a => a.length;
+      const clickCount$ = buffered$.pipe(map(toLength));
+      const doubleClick$ = clickCount$.pipe(filter(x => x === 2));
+      doubleClick$.subscribe(e => {
+        isWait === false ? pause(val) : cont()
+      });
     });
   }
 
   return (
     <Container>
-      <h1>Hola!</h1>
+      <h1 className={s.title}>StopWatch!</h1>
       <Display time={time}/>
       <Button start={start} status={status} stop={stop} reset={reset} wait={wait}/>
     </Container>

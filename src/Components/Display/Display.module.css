@@ -1,9 +1,9 @@
 .number {
-  padding: 10px;
-  outline: 2px solid teal;
-  background-color: tomato;
+  padding: 20px;
+  background-color: white;
   margin-right: 5px;
-  color: white;
+  color: black;
+  font-size: 30px;
 }
 
 .list {
@@ -11,4 +11,8 @@
   display: flex;
   justify-content: center;
   padding-left: 0;
+  outline: 2px solid black;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: black;
 }

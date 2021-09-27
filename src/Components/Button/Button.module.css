@@ -1,8 +1,15 @@
 .container {
   text-align: center;
+  display: flex;
+  justify-content: space-evenly;
 }
 .button {
-  padding: 5px 15px;
-  border: none;
-  background-color: violet;
+  padding: 10px 30px;
+  border: 2px solid black;
+  background-color: white;
+  font-weight: 600;
+}
+.button:hover,
+.button:focus {
+  background-color: lightgrey;
 }
