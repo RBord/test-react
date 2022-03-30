@@ -36,6 +36,7 @@ function App() {
       }, 1000));
       setStatus(1)
     });
+    console.log('testing!')
   }
 
   function stop() {
