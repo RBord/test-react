@@ -37,6 +37,7 @@ function App() {
       setStatus(1)
     });
     console.log('testing!')
+    console.log('test2!')
   }
 
   function stop() {
